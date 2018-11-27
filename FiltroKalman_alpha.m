@@ -3,29 +3,26 @@ close all;
 format long;
 
 % valores que nos dan
-diftime = xlsread('Prueba1/Prueba0.ods', 'Data', 'C2:C1934');
-quat = xlsread('Prueba1/Prueba0.ods', 'Data', 'D2:G1934');
-accel = xlsread('Prueba1/Prueba0.ods', 'Data', 'H2:J1934');
-gyro = xlsread('Prueba1/Prueba0.ods', 'Data', 'K2:M1934');
-euler = xlsread('Prueba1/Prueba0.ods', 'Data', 'N2:P1934');    
-head = xlsread('Prueba1/Prueba0.ods', 'Data', 'Q2:Q1934');
+diftime = xlsread('Prueba1/Prueba0.ods', 'Data', 'C3:C1934'); %OJO adelantar una fila la difftime
+quat = xlsread('Prueba1/Prueba0.ods', 'Data', 'D2:G1933');
+accel = xlsread('Prueba1/Prueba0.ods', 'Data', 'H2:J1933');
+gyro = xlsread('Prueba1/Prueba0.ods', 'Data', 'K2:M1933');
+euler = xlsread('Prueba1/Prueba0.ods', 'Data', 'N2:P1933');    
+head = xlsread('Prueba1/Prueba0.ods', 'Data', 'Q2:Q1933');
 % r_gps = xlsread('Cl2.xlsx', 'REAL', 'H4:J504');
 % Qk = xlsread('Cl2.xlsx', 'Qk', 'A1:J10');
 % Rk = xlsread('Cl2.xlsx', 'Rk', 'A1:C3');
 g = [0; 0; 9.79991];
 
-
 % numero de ciclos
 N = length(diftime);
 % % dt entre medidas
 % dtMedidasGPS = 0.1;
-% % escalas de tiempos
-% T1 = dt:dt:(N/100);
-% T2 = 0:dt:((N-1)/100);
+% escalas de tiempos
 s=0;
 for n=1:N
-    s = s + diftime(n);
     T1(1,n) = s;
+    s = s + diftime(n);
 end
 
 s=0;
@@ -76,9 +73,9 @@ end
 % valores iniciales
 r = zeros(1,3);
 v = zeros(1,3);
-ang(1,:) = [0.428116 1.00897 49.1488];
-ang_rad = ang*pi/180;
-q = angle2quat(ang_rad(1,3), ang_rad(1,2), ang_rad(1,1)); %OJO a la rotacion
+% ang(1,:) = [0.428116 1.00897 49.1488];
+% ang_rad = ang*pi/180;
+% q = angle2quat(ang_rad(1,3), ang_rad(1,2), ang_rad(1,1)); %OJO a la rotacion
 % r_estim = zeros(1,3);
 % v_estim = zeros(1,3);
 % ang_rad_estim = zeros(1,3);
@@ -116,20 +113,37 @@ for n=1:N;
     v(n+1,:) = ((C_ib*accel(n,:)'-g)*dift)'+ v(n,:);
 end
 
-% Gráfica posicion
+
+% Gráfica angulos euler IMU
+figure
+plot(T1, euler(:,3), 'r', T1, euler(:,2), 'g', T1, euler(:,1), 'b'); grid;
+xlabel('T (s)');
+ylabel('angulos euler (º)');
+title('Ang Euler IMU');
+legend('Yaw', 'Pitch', 'Roll');
+
+% Gráfica heading IMU
+figure
+plot(T1, head(:,1), 'k'); grid;
+xlabel('T (s)');
+ylabel('heading (º)');
+title('Rumbo magnetico IMU');
+legend('psi(º)');
+
+% Gráfica posicion IMU
 figure
 plot(T2, r(:,1), 'r', T2, r(:,2), 'g', T2, r(:,3), 'b'); grid;
 xlabel('T (s)');
 ylabel('posicion (m)');
-title('suuu');
+title('Posicion en ejes inerciales obtenidos por la IMU');
 legend('r_X', 'r_Y', 'r_Z');
 
-% Gráfica velocidad
+% Gráfica velocidad IMU
 figure
 plot(T2, v(:,1), 'r', T2, v(:,2), 'g', T2, v(:,3), 'b'); grid;
 xlabel('T (s)');
 ylabel('velocidad (m/s)');
-title('suuu');
+title('Velocidad en ejes inerciales obtenidos por la IMU');
 legend('v_X', 'v_Y', 'v_Z');
 
 
