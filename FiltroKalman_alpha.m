@@ -76,17 +76,17 @@ end
 % valores iniciales
 r = zeros(1,3);
 v = zeros(1,3);
-% ang(1,:) = [0.236938 1.25362 -120.853];
-% ang_rad = ang*pi/180;
-% q = angle2quat(ang_rad(1,3), ang_rad(1,2), ang_rad(1,1)); %OJO a la rotacion
+ang(1,:) = [0.428116 1.00897 49.1488];
+ang_rad = ang*pi/180;
+q = angle2quat(ang_rad(1,3), ang_rad(1,2), ang_rad(1,1)); %OJO a la rotacion
 % r_estim = zeros(1,3);
 % v_estim = zeros(1,3);
 % ang_rad_estim = zeros(1,3);
 
 
-% % Valores IMU
+% % Valores IMU(Comprobacion con euler y quat de la IMU)
 % for n=1:N;
-%     n;
+%     n
 %     C_bi = quat2dcm(q(n,:));
 %     C_ib = C_bi';
 %     Q = [-q(n,2) -q(n,3) -q(n,4);
@@ -94,9 +94,10 @@ v = zeros(1,3);
 %           -q(n,4) q(n,1) q(n,2);
 %           q(n,3) -q(n,2) q(n,1)];
 %       
-%     dift = diftime(n)
+%     dift = diftime(n);
 %     r(n+1,:) = v(n,:)*dift + r(n,:);
-%     v(n+1,:) = ((C_ib*accel(n,:)'+g)*dift)'+ v(n,:);
+% %     v(n+1,:) = ((C_ib*accel(n,:)')*dift)'+ v(n,:);
+%     v(n+1,:) = ((C_ib*accel(n,:)'-g)*dift)'+ v(n,:);
 %     q(n+1,:) = ((0.5*Q*C_ib*gyro(n,:)')*dift)'+ q(n,:);
 %     [ang_rad(n+1,3), ang_rad(n+1,2), ang_rad(n+1,1)] = quat2angle(q(n+1,:));
 % end
@@ -111,8 +112,8 @@ for n=1:N;
       
     dift = diftime(n);
     r(n+1,:) = v(n,:)*dift + r(n,:);
-    v(n+1,:) = ((C_ib*accel(n,:)')*dift)'+ v(n,:);
-%     v(n+1,:) = ((C_ib*accel(n,:)'+g)*dift)'+ v(n,:);
+%     v(n+1,:) = ((C_ib*accel(n,:)')*dift)'+ v(n,:);
+    v(n+1,:) = ((C_ib*accel(n,:)'-g)*dift)'+ v(n,:);
 end
 
 % Gráfica posicion
