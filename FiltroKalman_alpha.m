@@ -151,14 +151,14 @@ legend('v_X', 'v_Y', 'v_Z');
 
 
 % % valores iniciales kalman
-% r_estim = zeros(1,3);
-% v_estim = zeros(1,3);
-% ang_rad_estim = zeros(1,3);
+% r_kalman = zeros(1,3);
+% v_kalman = zeros(1,3);
+% ang_rad_kalman = zeros(1,3);
 % 
 % % Matriz de estado y "P" iniciales
 % X = [r(1,:), v(1,:), q(1,:)]';
 % P = Qk;
-
+% 
 % % Filtro de KALMAN
 % marg = 0.007559; %margen de error en sincronizacion IMU y GNSS 
 % for n=1:N1;
@@ -184,8 +184,7 @@ legend('v_X', 'v_Y', 'v_Z');
 %     v_kalman(n,:) = X(4:6)';
 %     [ang_rad_kalman(n,1), ang_rad_kalman(n,2), ang_rad_kalman(n,3)] = quat2angle(X(7:10)');
 % end
-% ang = ang_rad*180/pi;
-% ang_estim = ang_rad_kalman*180/pi;
+% ang_kalman = ang_rad_kalman*180/pi;
 
 
 
