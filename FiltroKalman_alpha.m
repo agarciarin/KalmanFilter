@@ -171,7 +171,7 @@ legend('v_X', 'v_Y', 'v_Z');
 %     
 %     time_imu(n) = T1(n);
 %     for j=1:N2;
-%         if (time_gnss(j) >= time_imu(n)-marg) | (time_gnss(j) <= time_imu(n)+marg);
+%         if (time_gnss(j) >= time_imu(n)-marg/2) | (time_gnss(j) <= time_imu(n)+marg/2);
 %             % 2) Corrección
 %             K = Pmenos*C'*(inv(C*Pmenos*C'+ Rk));
 %             P = (eye(10)-K*C)*Pmenos;
