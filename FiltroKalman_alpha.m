@@ -9,25 +9,26 @@ accel = xlsread('Prueba1/Prueba0.ods', 'Data', 'H2:J1933');
 gyro = xlsread('Prueba1/Prueba0.ods', 'Data', 'K2:M1933');
 euler = xlsread('Prueba1/Prueba0.ods', 'Data', 'N2:P1933');    
 head = xlsread('Prueba1/Prueba0.ods', 'Data', 'Q2:Q1933');
-% r_gps = xlsread('Cl2.xlsx', 'REAL', 'H4:J504');
-% Qk = xlsread('Cl2.xlsx', 'Qk', 'A1:J10');
-% Rk = xlsread('Cl2.xlsx', 'Rk', 'A1:C3');
+% r_gnss = xlsread('Cl2.xlsx', 'REAL', 'H4:J504');
+% Qk = xlsread('Prueba1/Cl2.xlsx', 'Qk', 'A1:J10');
+% Rk = xlsread('Prueba1/Cl2.xlsx', 'Rk', 'A1:C3');
 g = [0; 0; 9.79991];
 
 % numero de ciclos
-N = length(diftime);
+N1 = length(diftime);
+% N2 = length(time_gnss);
 % % dt entre medidas
 % dtMedidasGPS = 0.1;
 % escalas de tiempos
 s=0;
-for n=1:N
+for n=1:N1
     T1(1,n) = s;
     s = s + diftime(n);
 end
 
 s=0;
-for n=1:N+1
-    if(n <= N)   
+for n=1:N1+1
+    if(n <= N1)   
         T2(1,n) = s;
         s = s + diftime(n);
     else
@@ -82,7 +83,7 @@ v = zeros(1,3);
 
 
 % % Valores IMU(Comprobacion con euler y quat de la IMU)
-% for n=1:N;
+% for n=1:N1;
 %     n
 %     C_bi = quat2dcm(q(n,:));
 %     C_ib = C_bi';
@@ -102,7 +103,7 @@ v = zeros(1,3);
 
 
 % Valores IMU
-for n=1:N;
+for n=1:N1;
     n
     C_bi = quat2dcm(quat(n,:));
     C_ib = C_bi';
@@ -122,13 +123,13 @@ ylabel('angulos euler (º)');
 title('Ang Euler IMU');
 legend('Yaw', 'Pitch', 'Roll');
 
-% Gráfica heading IMU
+% Gráfica heading(N-E) IMU
 figure
 plot(T1, head(:,1), 'k'); grid;
 xlabel('T (s)');
 ylabel('heading (º)');
 title('Rumbo magnetico IMU');
-legend('psi(º)');
+legend('azimut(º)');
 
 % Gráfica posicion IMU
 figure
@@ -149,35 +150,46 @@ legend('v_X', 'v_Y', 'v_Z');
 
 
 
+% % valores iniciales kalman
+% r_estim = zeros(1,3);
+% v_estim = zeros(1,3);
+% ang_rad_estim = zeros(1,3);
+% 
 % % Matriz de estado y "P" iniciales
 % X = [r(1,:), v(1,:), q(1,:)]';
 % P = Qk;
-% 
+
 % % Filtro de KALMAN
-% j=0;
-% for n=1:N;
+% marg = 0.007559; %margen de error en sincronizacion IMU y GNSS 
+% for n=1:N1;
+%     n
 %     %A = double(subs(A_s, [X_s; f_s; w_s], [r(n,:)'; v(n,:)'; q(n,:)'; f_real(n,:)'; w_real(n,:)']));
-%     A = double(subs(A_s, {x, y, z, vx, vy, vz, q0, q1, q2, q3, fx, fy, fz, wx, wy, wz}, {r(n,1), r(n,2), r(n,3), v(n,1), v(n,2), v(n,3), q(n,1), q(n,2), q(n,3), q(n,4), f_real(n,1), f_real(n,2), f_real(n,3), w_real(n,1), w_real(n,2), w_real(n,3)}));
+%     A = double(subs(A_s, {x, y, z, vx, vy, vz, q0, q1, q2, q3, fx, fy, fz, wx, wy, wz}, {r(n,1), r(n,2), r(n,3), v(n,1), v(n,2), v(n,3), quat(n,1), quat(n,2), quat(n,3), quat(n,4), accel(n,1), accel(n,2), accel(n,3), gyro(n,1), gyro(n,2), gyro(n,3)}));
 %     % 1) Predicción
 %     Xmenos = A*X;
 %     Pmenos = A*P*A'+Qk;
-%     j=j+1;
-%     if j == dtMedidas/dt;
-%         j=0;
-%         % 2) Corrección
-%         K = Pmenos*C'*(inv(C*Pmenos*C'+ Rk));
-%         P = (eye(10)-K*C)*Pmenos;
-%         X = Xmenos+K*(r_gps(n,:)'-C*Xmenos);
-%     else
-%         X = Xmenos;
+%     
+%     time_imu(n) = T1(n);
+%     for j=1:N2;
+%         if (time_gnss(j) >= time_imu(n)-marg) | (time_gnss(j) <= time_imu(n)+marg);
+%             % 2) Corrección
+%             K = Pmenos*C'*(inv(C*Pmenos*C'+ Rk));
+%             P = (eye(10)-K*C)*Pmenos;
+%             X = Xmenos+K*(r_gnss(n,:)'-C*Xmenos);
+%         else
+%             X = Xmenos;
+%         end
 %     end
-%     r_estim(n,:) = X(1:3)';
-%     v_estim(n,:) = X(4:6)';
-%     [ang_rad_estim(n,1), ang_rad_estim(n,2), ang_rad_estim(n,3)] = quat2angle(X(7:10)');
+%     r_kalman(n,:) = X(1:3)';
+%     v_kalman(n,:) = X(4:6)';
+%     [ang_rad_kalman(n,1), ang_rad_kalman(n,2), ang_rad_kalman(n,3)] = quat2angle(X(7:10)');
 % end
-% 
 % ang = ang_rad*180/pi;
-% ang_estim = ang_rad_estim*180/pi;
+% ang_estim = ang_rad_kalman*180/pi;
+
+
+
+
 % 
 % % % Gráficos
 % % % Gráfica 3D posición estimada
