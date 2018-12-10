@@ -431,6 +431,12 @@ for n=1:N1;
     dist_Kalman = dist_Kalman + sqrt((r_kalman(n+1,1)-r_kalman(n,1))^2 + (r_kalman(n+1,2)-r_kalman(n,2))^2 + (r_kalman(n+1,3)-r_kalman(n,3))^2);
 end
 
+% Coordenadas estimacion Kalman en geodesicas
+for n=1:N1
+    n
+    [r_kalmanGEO(n,1),r_kalmanGEO(n,2),r_kalmanGEO(n,3)] = ned2geodetic(r_kalmanNED(n,1), r_kalmanNED(n,2), r_kalmanNED(n,3), geod_gnss(1,1),geod_gnss(1,2), geod_gnss(1,3), wgs84Ellipsoid);
+end
+
 
 %**********************Datos obtenemos************************
 % Datos IMU
@@ -441,8 +447,9 @@ xlswrite('vuelta1_resultados.xlsx', v, 'estimacion_IMU', 'E3:G100000');
 % Datos Kalman
 xlswrite('vuelta1_resultados.xlsx', T2', 'estimacion_Kalman', 'A3:A100000');
 xlswrite('vuelta1_resultados.xlsx', r_kalman, 'estimacion_Kalman', 'B3:D100000');
-xlswrite('vuelta1_resultados.xlsx', v_kalman, 'estimacion_Kalman', 'E3:G100000');
-xlswrite('vuelta1_resultados.xlsx', ang_kalman, 'estimacion_Kalman', 'H3:J100000');
+xlswrite('vuelta1_resultados.xlsx', r_kalmanGEO, 'estimacion_kalman', 'E3:G100000');
+xlswrite('vuelta1_resultados.xlsx', v_kalman, 'estimacion_Kalman', 'H3:J100000');
+xlswrite('vuelta1_resultados.xlsx', ang_kalman, 'estimacion_Kalman', 'K3:K100000');
 
 % Distancia total recorrida
 xlswrite('vuelta1_resultados.xlsx', dist_GNSS, 'dist_vuelta', 'B2');
